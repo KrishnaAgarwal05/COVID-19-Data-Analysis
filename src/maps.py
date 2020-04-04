@@ -7,6 +7,7 @@ import descartes
 from matplotlib import pyplot as plt
 from src import DataFormatting as daf
 from src import CurrentDate
+import numpy as np
 import warnings
 warnings.filterwarnings("ignore")
 
@@ -84,3 +85,32 @@ def mapping_americas(COVID_DATA_df, maptype):
     americas_continent = pd.merge(americas_continent, df, on='COUNTRY', how='inner')
     title_desc = str(maptype + ' cases of Corona Virus in Americas as on ' + CurrentDate.DATE_UPDATE)
     mapping_plot(americas_continent, df,maptype, title_desc)
+
+def mapping_africa(COVID_DATA_df, maptype):
+    df = daf.country_wise_count(COVID_DATA_df)
+    df.columns = df.columns.str.replace('Country/Region', 'NAME')
+    df['NAME'] = df['NAME'].replace('Congo (Kinshasa)','Congo, DRC')
+    df['NAME'] = df['NAME'].replace('Congo (Brazzaville)','Congo')
+    df['NAME'] = df['NAME'].replace('Central African Republic','Central African Rep')
+    df['NAME'] = df['NAME'].replace('Libya','Libyan Arab Jamahiriya')
+    
+    africa_continent = gpd.read_file('./SHP-Files/Africa/Africa.shp')
+    africa_continent['NAME'] = np.where((africa_continent.ISO_3DIGIT== 'CIV'),'Cote d\'Ivoire',africa_continent.NAME)
+    africa_continent = pd.merge(africa_continent, df, on='NAME', how='inner')
+    title_desc = str(maptype + ' cases of Corona Virus in Africa as on ' + CurrentDate.DATE_UPDATE)
+    mapping_plot(africa_continent, df,maptype, title_desc)
+
+def mapping_apac(COVID_DATA_df, maptype):
+    df = daf.country_wise_count(COVID_DATA_df)
+    df.columns = df.columns.str.replace('Country/Region', 'CNTRY_NAME')
+
+    asia_continent = gpd.read_file('./SHP-Files/APAC/APAC.shp')
+    asia_continent = pd.merge(asia_continent, df, on='CNTRY_NAME', how='inner')
+    fig, ax = plt.subplots(1, figsize=(20,15))
+    ax.axis('off')
+    title_desc = str(maptype + ' cases of Corona Virus in APAC as on ' + CurrentDate.DATE_UPDATE)
+    ax.set_title(title_desc)
+    asia_continent.plot(ax=ax, column=maptype, legend=True,scheme='fisher_jenks')
+    #Emptying memory
+    df = 0
+    asia_continent = 0

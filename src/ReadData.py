@@ -39,3 +39,21 @@ def cities_usa_importfiles():
         COVID_DATA_df = pd.concat([COVID_DATA_df,temp_df], ignore_index=True, axis=0)
     COVID_DATA_df.columns = COVID_DATA_df.columns.str.replace('Admin2', 'City')
     return COVID_DATA_df
+
+def import_population():
+    population_df = pd.read_csv('./Data/WorldPopulation/data.csv')
+    population_df = population_df[['name','pop2020']]
+    population_df.columns = population_df.columns.str.replace('pop2020', 'Population')
+    population_df.columns = population_df.columns.str.replace('name', 'Country/Region')
+    population_df['Population'] = population_df['Population']*1000
+    pd.set_option('display.float_format', lambda x: '%.0f' % x)
+    
+    population_df['Country/Region'] = population_df['Country/Region'].replace('United States','US')
+    population_df['Country/Region'] = population_df['Country/Region'].replace('Cape Verde','Cabo Verde')
+    population_df['Country/Region'] = population_df['Country/Region'].replace('Republic of the Congo','Congo (Brazzaville)')
+    population_df['Country/Region'] = population_df['Country/Region'].replace('DR Congo','Congo (Kinshasa)')
+    population_df['Country/Region'] = population_df['Country/Region'].replace('Czech Republic','Czechia')
+    population_df['Country/Region'] = population_df['Country/Region'].replace('South Korea','Korea, South')
+    population_df['Country/Region'] = population_df['Country/Region'].replace('South Sudan','Sudan')
+    population_df['Country/Region'] = population_df['Country/Region'].replace('Taiwans','Taiwan*')
+    return population_df

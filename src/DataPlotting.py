@@ -83,23 +83,27 @@ def plot_timeline_total(COVID_DATA_df, country=None, state=None, city=None):
         selection_column = 'Country/Region'
         df = daf.timeline_total(COVID_DATA_df)
         x_label_value = 'World'
-        
+
+    df = df[df['Last Update'].isin(CurrentDate.time_list)]
+    df['Confirmed'] = df['Confirmed']/1000
+    df['Deaths'] = df['Deaths']/1000
+    df['Recovered'] = df['Recovered']/1000
     plt.figure(figsize=(10,5), dpi=100)
     line_plot_ax = sns.lineplot(x='Last Update',y='Confirmed',data=df, label='Confirmed')
     line_plot_ax = sns.lineplot(x='Last Update',y='Deaths',data=df, color='red', ax = line_plot_ax, label='Deaths')
     line_plot_ax = sns.lineplot(x='Last Update',y='Recovered',data=df, color='green', ax = line_plot_ax, label='Recovered')
     line_plot_ax.set_title('Cases of Corona Virus in '+ x_label_value)
-    line_plot_ax.set_xlabel('Time')
-    line_plot_ax.set_ylabel('Count')
-    
+    line_plot_ax.set_xlabel('Time - Weekly')
+    line_plot_ax.set_ylabel('Count in 1000\'s')
     plt.xticks(rotation=90)
     df = 0
 
 def line_plotting_function(df,selection_column,x_label_value, x_value, y_value):
+    df = df[df['Last Update'].isin(CurrentDate.time_list)]
     plt.figure(figsize=(10,5), dpi=100)
     line_plot_ax = sns.lineplot(x=x_value,y=y_value,data=df,hue=selection_column)
     line_plot_ax.set_title(y_value + ' Cases of Corona Virus in ' + x_label_value)
-    line_plot_ax.set_xlabel('Time')
+    line_plot_ax.set_xlabel('Time - Weekly')
     line_plot_ax.set_ylabel('Count')
     line_plot_ax.legend(loc='right', bbox_to_anchor=(1.15, 0.5), ncol=1, fontsize=8)
     plt.xticks(rotation=90)

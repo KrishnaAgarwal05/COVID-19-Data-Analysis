@@ -4,6 +4,8 @@ import pandas as pd
 from datetime import date
 from datetime import timedelta
 from src import CurrentDate
+from src import ReadData as rd
+
 
 def country_wise_count(COVID_DATA_df, country=None, state=None, city=None):
     df = COVID_DATA_df[COVID_DATA_df['Last Update'].str.contains(CurrentDate.DATE_UPDATE)]
@@ -109,7 +111,16 @@ def line_plot_initatizing_data(COVID_DATA_df, country, state, city=None):
     
     return selection_column, df, x_label_value
 
-
+def new_cases_diff(df,country_list, selection_column):
+    diff_df = pd.DataFrame(columns = [selection_column, 'Last Update', 'Confirmed', 'Deaths', 'Recovered'])
+    for country in country_list:
+        temp_df = df[df[selection_column] ==country]
+        temp_df["New Confirmed"] = temp_df["Confirmed"].diff(periods=1)
+        temp_df["New Recovered"] = temp_df["Recovered"].diff(periods=1)
+        temp_df["New Deaths"] = temp_df["Deaths"].diff(periods=1)
+        diff_df = pd.concat([diff_df,temp_df], ignore_index=True, axis=0, sort=True)
+    return diff_df
+    
 def timeline_new_cases_countrywise(COVID_DATA_df, country=None, state=None, city=None):
     if city is not None:
         selection_column = 'City'
@@ -130,13 +141,7 @@ def timeline_new_cases_countrywise(COVID_DATA_df, country=None, state=None, city
     
     top_countries = top_countries[:5]
     #Getting the differences
-    diff_df = pd.DataFrame(columns = [selection_column, 'Last Update', 'Confirmed', 'Deaths', 'Recovered'])
-    for top_country in top_countries:
-        temp_df = df[df[selection_column] ==top_country]
-        temp_df["New Confirmed"] = temp_df["Confirmed"].diff(periods=1)
-        temp_df["New Recovered"] = temp_df["Recovered"].diff(periods=1)
-        temp_df["New Deaths"] = temp_df["Deaths"].diff(periods=1)
-        diff_df = pd.concat([diff_df,temp_df], ignore_index=True, axis=0, sort=True)
+    diff_df = new_cases_diff(df,top_countries, selection_column)
     
     diff_df = diff_df.sort_values(by=['Last Update'])
     diff_df = diff_df.fillna(0)
@@ -170,3 +175,21 @@ def line_plot_new_cases_initatizing_data(COVID_DATA_df, country, state, city):
         x_label_value = 'Top 5 Countries'
         
     return selection_column, df, x_label_value
+
+def corona_table(COVID_DATA_df):
+    countries = list(set(country_wise_count(COVID_DATA_df)['Country/Region'].tolist()))
+    temp_df = COVID_DATA_df.groupby(['Country/Region', 'Last Update']).agg({'Confirmed':['sum'], 'Recovered':['sum'], 'Deaths':['sum']})
+    temp_df = temp_df.reset_index()
+    temp_df.columns = temp_df.columns.droplevel(1)
+    temp_df = new_cases_diff(temp_df,countries, 'Country/Region')
+    temp_df = temp_df[temp_df['Last Update'].str.contains(CurrentDate.DATE_UPDATE)]
+    temp_df = temp_df.sort_values(by=['Confirmed'], ascending=False)
+
+    pop_df = rd.import_population()
+    temp_df = pd.merge(temp_df, pop_df, on='Country/Region', how='inner')
+    temp_df['Tot Cases/ 1M Pop'] = (temp_df['Confirmed']*1000000) / temp_df['Population']
+    temp_df['Deaths/ 1M Pop'] = (temp_df['Deaths']*1000000) / temp_df['Population']
+    temp_df['Active Cases'] = temp_df['Confirmed'] - temp_df['Deaths'] - temp_df['Recovered']
+    temp_df = temp_df[['Country/Region','Confirmed','New Confirmed','Deaths','New Deaths','Recovered','Active Cases','Tot Cases/ 1M Pop','Deaths/ 1M Pop']]
+    pd.set_option('display.max_rows', temp_df.shape[0]+1)
+    return temp_df
