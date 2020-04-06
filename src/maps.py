@@ -5,6 +5,7 @@ import geopandas as gpd
 import pysal
 import descartes
 from matplotlib import pyplot as plt
+import matplotlib as mpl
 from src import DataFormatting as daf
 from src import CurrentDate
 import numpy as np
@@ -12,10 +13,12 @@ import warnings
 warnings.filterwarnings("ignore")
 
 def mapping_plot(TYPE_DF, df, maptype, title_desc):
+    cmap = mpl.colors.LinearSegmentedColormap.from_list('Custom cmap', ["steelblue", "wheat", "tomato"])
+    plt.style.use('ggplot')
     fig, ax = plt.subplots(1, figsize=(20,8.5))
     ax.axis('off')
     ax.set_title(title_desc)
-    TYPE_DF.plot(ax=ax, column=maptype, legend=True,scheme='fisher_jenks')
+    TYPE_DF.plot(ax=ax, column=maptype, legend=True,scheme='fisher_jenks', cmap=cmap)
     
     #Emptying memory
     df = 0
@@ -108,9 +111,10 @@ def mapping_apac(COVID_DATA_df, maptype):
     asia_continent = pd.merge(asia_continent, df, on='CNTRY_NAME', how='inner')
     fig, ax = plt.subplots(1, figsize=(20,15))
     ax.axis('off')
+    cmap = mpl.colors.LinearSegmentedColormap.from_list('Custom cmap', ["steelblue", "white", "tomato"])
     title_desc = str(maptype + ' cases of Corona Virus in APAC as on ' + CurrentDate.DATE_UPDATE)
     ax.set_title(title_desc)
-    asia_continent.plot(ax=ax, column=maptype, legend=True,scheme='fisher_jenks')
+    asia_continent.plot(ax=ax, column=maptype, legend=True,scheme='fisher_jenks',cmap=cmap)
     #Emptying memory
     df = 0
     asia_continent = 0

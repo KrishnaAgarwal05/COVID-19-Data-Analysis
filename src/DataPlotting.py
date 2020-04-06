@@ -110,19 +110,24 @@ def line_plotting_function(df,selection_column,x_label_value, x_value, y_value):
     df = 0
 
 def plot_timeline_countrywise_CONFIRMED(COVID_DATA_df, country=None, state=None, city=None):
-    selection_column, df, x_label_value = daf.line_plot_initatizing_data(COVID_DATA_df, country, state)
+    selection_column, df, x_label_value = daf.line_plot_initatizing_data(COVID_DATA_df, country, state, city)
     
     line_plotting_function(df,selection_column,x_label_value, 'Last Update', 'Confirmed')
 
 def plot_timeline_countrywise_RECOVERED(COVID_DATA_df, country=None, state=None, city=None):
-    selection_column, df, x_label_value = daf.line_plot_initatizing_data(COVID_DATA_df, country, state)
+    selection_column, df, x_label_value = daf.line_plot_initatizing_data(COVID_DATA_df, country, state, city)
     
     line_plotting_function(df,selection_column,x_label_value, 'Last Update', 'Recovered')
     
 def plot_timeline_countrywise_DEATHS(COVID_DATA_df, country=None, state=None, city=None):
-    selection_column, df, x_label_value = daf.line_plot_initatizing_data(COVID_DATA_df, country, state)
+    selection_column, df, x_label_value = daf.line_plot_initatizing_data(COVID_DATA_df, country, state, city)
     
     line_plotting_function(df,selection_column,x_label_value, 'Last Update', 'Deaths')
+
+def plot_timeline_countrywise_ACTIVE(COVID_DATA_df, country=None, state=None, city=None):
+    selection_column, df, x_label_value = daf.line_plot_initatizing_data(COVID_DATA_df, country, state, city)
+    
+    line_plotting_function(df,selection_column,x_label_value, 'Last Update', 'Active Cases')
 
 def plot_timeline__new_cases_countrywise_CONFIRMED(COVID_DATA_df, country=None, state=None, city=None):
     selection_column, df, x_label_value = daf.line_plot_new_cases_initatizing_data(COVID_DATA_df, country, state, city)

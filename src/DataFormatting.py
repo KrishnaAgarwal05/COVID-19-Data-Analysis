@@ -27,7 +27,8 @@ def country_wise_count(COVID_DATA_df, country=None, state=None, city=None):
     else:
         selection_column = 'Country/Region'
 
-    df = df.groupby([selection_column]).agg({'Confirmed':['sum'], 'Deaths':['sum'], 'Recovered':['sum']})
+    df['Active Cases'] = df['Confirmed'] - df['Deaths'] - df['Recovered']
+    df = df.groupby([selection_column]).agg({'Confirmed':['sum'], 'Deaths':['sum'], 'Recovered':['sum'], 'Active Cases':['sum']})
     df = df.reset_index()
     df.columns = df.columns.droplevel(1)
     df = df.sort_values(by=['Confirmed'], ascending=False)
@@ -49,9 +50,10 @@ def timeline_total(COVID_DATA_df, country=None, state=None, city=None):
         df = COVID_DATA_df[COVID_DATA_df['Country/Region'].isin(country)]
     else:
         df = COVID_DATA_df
-    
+
+    df['Active Cases'] = df['Confirmed'] - df['Deaths'] - df['Recovered']
     df = df.sort_values(by=['Last Update'])
-    df = df.groupby(['Last Update']).agg({'Confirmed':['sum'], 'Recovered':['sum'], 'Deaths':['sum']})
+    df = df.groupby(['Last Update']).agg({'Confirmed':['sum'], 'Recovered':['sum'], 'Deaths':['sum'], 'Active Cases':['sum']})
     df = df.reset_index()
     df.columns = df.columns.droplevel(1)
     df = df.sort_values(by=['Last Update'])
@@ -75,8 +77,9 @@ def timeline_countrywise(COVID_DATA_df, country=None, state=None, city=None):
     temp_df = temp_df[:5]
     top_countries = temp_df[selection_column].tolist()
     df = COVID_DATA_df[COVID_DATA_df[selection_column].isin(top_countries)]
+    df['Active Cases'] = df['Confirmed'] - df['Deaths'] - df['Recovered']
     df = df.sort_values(by=[selection_column, 'Last Update'])
-    df = df.groupby([selection_column, 'Last Update']).agg({'Confirmed':['sum'], 'Recovered':['sum'], 'Deaths':['sum']})
+    df = df.groupby([selection_column, 'Last Update']).agg({'Confirmed':['sum'], 'Recovered':['sum'], 'Deaths':['sum'], 'Active Cases':['sum']})
     df = df.reset_index()
     df.columns = df.columns.droplevel(1)
     df = df.sort_values(by=['Last Update'])
